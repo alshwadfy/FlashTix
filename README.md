@@ -1,10 +1,10 @@
-# FlashTix: High-Concurrency Flash Sale Ticketing Engine
+# FlashTix: High-Concurrency Flash Sale Ticketing Engine 🎟️⚡
 
 > **Mission**: Sell a strictly limited inventory of tickets (e.g., 100 tickets) to thousands of concurrent users (e.g., 5,000 users in k6) with **zero overselling**, surviving instance crashes and broker outages.
 
 ---
 
-## 🏛️ High-Level System Architecture
+## 🏛️ System Architecture
 
 ```
                        [ 5,000 Concurrent Users ]
@@ -47,24 +47,18 @@
 
 ---
 
-## 🗺️ Project Milestones (The Learning Roadmap)
+## 🗺️ Project Milestones
 
 ### 📍 Milestone 1: The Core Gatekeeper & Oversell Prevention ✅ [COMPLETED]
 * **Goal**: Build the core order ingestion flow with Redis and PostgreSQL; prove zero overselling under a massive k6 barrage.
-* **Key Concepts Mastered**:
+* **Key Concepts**:
   - Why standard database queries (`SELECT ... FOR UPDATE` or optimistic locking) buckle under 5,000 RPS.
   - Redis single-threaded execution & Lua script atomicity (`CHECK_AND_DECR`).
   - Request Idempotency keys (`setIfAbsent` in Redis + `UNIQUE` index in PostgreSQL).
   - SAGA Compensation: Restoring inventory if database writes fail.
-* **Proof / Verification Results**:
-  - Ran k6 load test with 5,000 requests (100 concurrent VUs) competing for 100 tickets.
-  - **Results**:
-    - `orders_created` (HTTP 201): **100**
-    - `orders_sold_out` (HTTP 409): **4,900**
-    - `unexpected_errors`: **0**
-    - Final Redis stock: **0**
-    - Final PostgreSQL `orders` count: **100** (all `PENDING`)
-  - **Status**: 100% Passed. Zero overselling. Complete mathematical precision.
+* **Verification Proof**:
+  - Full benchmark report and numbers: [docs/MILESTONE_1_REPORT.md](docs/MILESTONE_1_REPORT.md)
+  - **k6 Results**: 5,000 requests, 100 HTTP 201s, 4,900 HTTP 409s, 0 unexpected errors, exact 0 oversold tickets.
 
 ---
 
