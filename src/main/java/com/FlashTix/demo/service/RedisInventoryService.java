@@ -63,10 +63,13 @@ public class RedisInventoryService {
     }
 
     /**
-     * Compensates stock by incrementing Redis counter back up (e.g., if DB insert failed).
+     * Compensates stock by incrementing Redis counter back up (e.g., if DB insert failed or payment failed).
+     *
+     * @return new stock level after compensation
      */
-    public void compensateStock(String eventId, int ticketCount) {
-        redisTemplate.opsForValue().increment(getStockKey(eventId), ticketCount);
+    public long compensateStock(String eventId, int ticketCount) {
+        Long result = redisTemplate.opsForValue().increment(getStockKey(eventId), ticketCount);
+        return result != null ? result : 0;
     }
 
     /**

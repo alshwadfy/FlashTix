@@ -75,17 +75,17 @@
 
 ---
 
-### 📍 Milestone 3: Asynchronous Workflows & Resilient Workers
-* **Goal**: Decouple payment processing via RabbitMQ with automated retries, DLQ, and stock compensation.
-* **Key Concepts**:
-  - Task queues vs. event logs: Why RabbitMQ is designed for transactional job dispatch and acknowledgement.
-  - At-least-once delivery and consumer-side idempotency.
+### 📍 Milestone 3: Asynchronous Workflows & Resilient Workers ✅ [COMPLETED]
+* **Goal**: Decouple payment processing via RabbitMQ with automated retries, DLQ, and SAGA stock compensation.
+* **Key Concepts Mastered**:
+  - Task queues vs. event logs: RabbitMQ for transactional job dispatch and acknowledgement.
+  - At-least-once delivery, non-blocking ingestion, and consumer-side idempotency.
   - Exponential backoff retry policies and Dead Letter Exchanges (`order.dlx`).
   - Distributed Sagas / Compensation: Restoring Redis inventory if payment permanently fails.
-* **Proof / Definition of Done**:
-  - Inject 20% simulated payment failures.
-  - All failed tickets are safely credited back to Redis and snapped up by waiting users.
-  - Exhausted retries land safely in the DLQ without crashing the queue.
+* **Verification Proof**:
+  - Full benchmark & SAGA report: [docs/MILESTONE_3_REPORT.md](docs/MILESTONE_3_REPORT.md)
+  - **Results**: Handled concurrent burst with 20% simulated payment failures; all failed orders retried 3 times, routed into `order.dlq`, marked `FAILED`, and triggered SAGA inventory compensation back to Redis.
+  - **Outcome**: Exactly 100 tickets confirmed sold, 19 dead orders safely audited in DLQ, and **exact 0 final Redis stock (zero overselling / zero lost inventory)**!
 
 ---
 

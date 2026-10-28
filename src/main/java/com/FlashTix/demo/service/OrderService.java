@@ -1,12 +1,15 @@
 package com.FlashTix.demo.service;
 
+import com.FlashTix.demo.config.RabbitMQConfig;
 import com.FlashTix.demo.dto.CreateOrderRequest;
+import com.FlashTix.demo.dto.OrderProcessMessage;
 import com.FlashTix.demo.dto.OrderResponse;
 import com.FlashTix.demo.exception.DuplicateInFlightException;
 import com.FlashTix.demo.exception.SoldOutException;
 import com.FlashTix.demo.model.Order;
 import com.FlashTix.demo.model.OrderStatus;
 import com.FlashTix.demo.repository.OrderRepository;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -18,10 +21,14 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final RedisInventoryService redisInventoryService;
+    private final RabbitTemplate rabbitTemplate;
 
-    public OrderService(OrderRepository orderRepository, RedisInventoryService redisInventoryService) {
+    public OrderService(OrderRepository orderRepository,
+                        RedisInventoryService redisInventoryService,
+                        RabbitTemplate rabbitTemplate) {
         this.orderRepository = orderRepository;
         this.redisInventoryService = redisInventoryService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     public OrderResponse createOrder(String idempotencyKey, CreateOrderRequest request) {
@@ -72,8 +79,18 @@ public class OrderService {
                     Instant.now()
             );
             savedOrder = orderRepository.save(order);
+
+            // 5. Publish to RabbitMQ for asynchronous payment processing
+            OrderProcessMessage message = new OrderProcessMessage(
+                    savedOrder.getId(),
+                    savedOrder.getEventId(),
+                    savedOrder.getUserId(),
+                    savedOrder.getTicketCount(),
+                    savedOrder.getIdempotencyKey()
+            );
+            rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY, message);
         } catch (Exception ex) {
-            // COMPENSATION: DB failed -> restore Redis stock and release idempotency lock
+            // COMPENSATION: DB or RabbitMQ failed -> restore Redis stock and release idempotency lock
             redisInventoryService.compensateStock(request.getEventId(), count);
             redisInventoryService.releaseIdempotencyLock(idempotencyKey);
             throw ex;
