@@ -27,9 +27,13 @@ public class DataInitializer implements CommandLineRunner {
         int initialStock = 100;
 
         if (!eventRepository.existsById(eventId)) {
-            Event event = new Event(eventId, "Coldplay World Tour", initialStock, initialStock);
-            eventRepository.save(event);
-            log.info("Initialized event {} in PostgreSQL", eventId);
+            try {
+                Event event = new Event(eventId, "Coldplay World Tour", initialStock, initialStock);
+                eventRepository.save(event);
+                log.info("Initialized event {} in PostgreSQL", eventId);
+            } catch (Exception e) {
+                log.info("Event {} was initialized by another node: {}", eventId, e.getMessage());
+            }
         }
 
         // Warm up Redis cache with stock from DB

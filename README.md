@@ -62,15 +62,16 @@
 
 ---
 
-### 📍 Milestone 2: High Availability & Load Balancing
+### 📍 Milestone 2: High Availability & Load Balancing ✅ [COMPLETED]
 * **Goal**: Scale Spring Boot to 3 instances behind an Nginx reverse proxy; verify zero downtime when an instance dies.
-* **Key Concepts**:
-  - Nginx upstream load balancing algorithms (Round Robin / Least Conn).
-  - Rate limiting bursts at the edge to protect downstream services.
-  - Graceful degradation and connection handling.
-* **Proof / Definition of Done**:
-  - Run the k6 load test while abruptly killing one of the three Spring Boot containers (`docker stop app-2`).
-  - Traffic seamlessly routes to surviving nodes without 502 Bad Gateway errors or lost orders.
+* **Key Concepts Mastered**:
+  - Nginx upstream load balancing algorithms (`least_conn`).
+  - Transparent failover: `proxy_next_upstream error timeout http_502 http_503 non_idempotent`.
+  - Resilience against mid-flight container crashes.
+* **Verification Proof**:
+  - Full benchmark & chaos report: [docs/MILESTONE_2_REPORT.md](docs/MILESTONE_2_REPORT.md)
+  - **Chaos Test Results**: Ran 5,000 requests into Nginx while killing `flashtix-app-2` mid-flight.
+  - **Outcome**: Exactly 100 orders created, 4,900 rejected, **0 dropped requests / 502 errors**, 100% availability!
 
 ---
 
