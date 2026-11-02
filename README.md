@@ -57,7 +57,7 @@
   - Request Idempotency keys ( ` setIfAbsent` in Redis + `UNIQUE` index in P os tgreSQL).
   - SAGA Compensation: Restoring  in ventory if database writes fail.
 * **Veri fica tion Proof**:
-  - Full benchmark report  and n umbers: [docs/MILESTONE_1_REPORT.md](do cs/MIL ESTONE_1_REPORT.md)
+  - Full benchmark report and numbers: [docs/MILESTONE_1_REPORT.md](docs/MILESTONE_1_REPORT.md)
   - **k6 Results** : 5,000  requests, 100 HTTP 201s, 4,900 HTTP  409s, 0  unexpected errors, exact 0 oversold  tickets.
  
 ---
@@ -69,7 +69,7 @@
   - Transp arent failover:  `proxy_next_upstream error t imeout http_502 h ttp_503 non_idempotent`.
    - Resilience again st mid-flight container cr ashes.
 * **Verifica tion Proof**:
-  - Full be nchmark & chaos report: [docs/MILESTONE_2_RE PORT.md](docs/MILESTONE_2_REPORT.md)
+  - Full benchmark & chaos report: [docs/MILESTONE_2_REPORT.md](docs/MILESTONE_2_REPORT.md)
   - **C haos Test Results**: R an 5,000 requests into  Nginx while killing `f lashtix-app-2` mid-fl ight.
   - **Outcome**: E xactly 100 orders cr eated, 4,900 rejected, ** 0 dropped requests  / 502 errors**, 100% avail ability!
 
@@ -83,7 +83,7 @@
    - Exponential backoff retry policies  and Dea d Letter Exchanges (`order.dlx`).
   -  Distri buted Sagas / Compensation: Restoring  Redis  inventory if payment permanently fails. 
 * ** Verification Proof**:
-  - Full benchmark  & S AGA report: [docs/MILESTONE_3_REPORT.md]( doc s/MILESTONE_3_REPORT.md)
+  - Full benchmark & SAGA report: [docs/MILESTONE_3_REPORT.md](docs/MILESTONE_3_REPORT.md)
   - **Results**:  Ha ndled concurrent burst with 20% simulated p a yment failures; all failed orders retried 3   times, routed into `order.dlq`, marked `FAILE  D`, and triggered SAGA inventory compensatio n  back to Redis.
   - **Outcome**: Exactly 10 0  tickets confirmed sold, 19 dead orders saf ely  audited in DLQ, and **exact 0 final Redi s st ock (zero overselling / zero lost invent ory)* *!
 
@@ -165,6 +165,6 @@ k6 run k6/rabbitmq_saga_test.js
 ` ``
 
 ### Detailed Milestone Verification Repor ts
-- [Milestone 1 Benchmark Report: Redis Lua  & Zero Oversell](docs/MILESTONE_1_REPORT.md) 
-- [Milestone 2 Chaos Report: Nginx HA & Fail over](docs/MILESTONE_2_REPORT.md)
-- [Mileston e 3 Asynchronous Workers & SAGA Compensation] (docs/MILESTONE_3_REPORT.md) 
+- [Milestone 1 Benchmark Report: Redis Lua & Zero Oversell](docs/MILESTONE_1_REPORT.md) 
+- [Milestone 2 Chaos Report: Nginx HA & Failover](docs/MILESTONE_2_REPORT.md)
+- [Milestone 3 Asynchronous Workers & SAGA Compensation](docs/MILESTONE_3_REPORT.md) 
